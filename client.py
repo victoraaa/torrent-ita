@@ -49,6 +49,10 @@ def _process_connection(data, conn):
     #vê data e chama o método responsável
 
     response = route(json.loads(data))
+    
+    print '\nResposta a ser enviada:'
+    print response
+
     if response:
         conn.sendall(json.dumps(response))
     conn.close()
@@ -58,7 +62,12 @@ def route(data):
     method = data["method"]
     method_type = data["type"]
 
-    if method == 'DOWNLOAD_FILE' and method_type == "RESPONSE":
+    # status
+    print '\nChamada recebida:'
+    print 'METHOD: ' + method
+    print 'TYPE: ' + method_type
+
+    if method == 'DOWNLOAD_FILE' and method_type == "REQUEST":
         return download_file_response(data)
     else:
         return "Invalid Request"

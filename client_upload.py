@@ -62,15 +62,3 @@ def ping_response():
                      'type': 'RESPONSE'}
 
     return response_data
-
-
-def method_router(data):
-    method = data['method']
-
-    print 'method router'
-    print data
-
-    if method == 'PING':
-        ping_response()
-    if method == 'DOWNLOAD_FILE':
-        download_file_response()
