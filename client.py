@@ -56,11 +56,13 @@ def _process_connection(data, conn):
     if len(response) < 100:
         print response
     else:
-        print response[0:100]
-        print '....'
+        print response[0:100] + '....'
 
     if response:
+        # import time
+        # time.sleep(0.1)
         conn.sendall(response)
+        # time.sleep(0.1)
     conn.close()
 
 

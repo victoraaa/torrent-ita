@@ -29,19 +29,23 @@ def _read_file_part(file_name, part_number):
 
         file_name = 'files/' + file_name
         f = open(file_name, 'rb')
+        
         f.seek(0, 2)
         size = f.tell()
         part_size = size / 3
 
+        f.seek(0,0)
+        file_content = f.read()
+
+        file_content = base64.b64encode(file_content)
+        
+        size = len(file_content)
         begin = part_number * part_size
 
-        f.seek(begin)
         if part_number != 2:
-            file_piece = f.read(part_size)
+            file_piece = file_content[begin:begin+part_size]
         else:
-            file_piece = f.read(size - begin)
-
-        file_piece = base64.b64encode(file_piece)
+            file_piece = file_content[begin:]
 
         return file_piece
 

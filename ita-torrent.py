@@ -16,7 +16,7 @@ def main():
     # client_upload.TRACKER_HOST = tracker_ip
     # client_upload.TRACKER_PORT = tracker_port
 
-    # thread.start_new_thread(client_upload.run)
+    thread.start_new_thread(run_uploader)
 
 
 def run_uploader():
