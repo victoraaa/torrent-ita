@@ -25,6 +25,8 @@ def register_as_owner_request(file_name, part_completed):
 
 
 def _read_file_part(file_name, part_number):
+
+        file_name = 'files/' + file_name
         f = open(file_name, 'r')
         f.seek(0, 2)
         size = f.tell()
@@ -51,7 +53,8 @@ def download_file_response(request_data):
                      'type': 'RESPONSE',
                      'file': file_piece
                      }
-    send(request_data['IP'], request_data['PORT_NUMBER'], response_data)
+    
+    return response_data
 
 
 def ping_response():

@@ -1,29 +1,32 @@
+#coding: utf-8
 # Echo server program
 import threading
 import socket
 import json
 
-HOST = '192.168.0.27'                 # Symbolic name meaning all available interfaces
+from client_upload import download_file_response
+
+#HOST = '192.168.0.27'                 # Symbolic name meaning all available interfaces
+HOST = ''
 MAIN_PORT = 50006              # Arbitrary non-privileged port
 
 TRACKER = ''
 TRACKER_PORT = 500001
 
-def stub_response(data):
-    print host, data
-    return "{} is the response".format(data)
+N_PARTS = 3
 
 
 def main():
     #server shouldo do:
-    #listen(MAIN_PORT, stub_response)
+    #listen(MAIN_PORT)
 
     #client should do:
-    print ping_request('192.168.0.26', 50011)
+    print ping_request(HOST, 50006)
     #while True:
         #data = raw_input()
         #print send('192.168.0.200', MAIN_PORT, data)
     pass
+
 
 def ping_request(host, port):
     data = {
@@ -37,8 +40,6 @@ def ping_request(host, port):
     except:
         return False
 
-def download_file(host, port, filename):
-    pass
 
 def list_files():
     data = {
@@ -50,6 +51,22 @@ def list_files():
     except:
         pass
 
+
+def download_file(host, port, filename):
+    threads = []    
+    for i in range(N_PARTS):
+        t = threading.Thread(target=download_file_part, args = (host, port, filename, part))
+        t.start()
+        threads.append(t)
+    for thread in threads:
+        thread.join()
+        #send message to tracker
+    #put files together
+    #check if original
+    
+    return
+
+
 def download_file_part(host, port, filename, part):
     request = {
         "method": "DOWNLOAD_FILE",
@@ -58,12 +75,13 @@ def download_file_part(host, port, filename, part):
         "part_number": part
     }
     response = send(host, port, request)
-    #do whatever we do with the response
+    with open('filename.part1', 'wb') as f:
+        f.write(response)
 
 
 #Receives host and port to which will connect
-def listen(port, callback):
 
+def listen(port):    
     #initiating socket and making it listen
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -74,12 +92,28 @@ def listen(port, callback):
 
         #transfering data
         data = conn.recv(1024)
-        response = callback(json.loads(data))
-        if response:
-            conn.sendall(json.dumps(response))
 
-        conn.close()
+        t = threading.Thread(target=_process_connection, args = (data, conn))
+        t.start()
     s.close()
+
+def _process_connection(data, conn):
+    #vê data e chama o método responsável
+
+    response = route(json.loads(data))
+    if response:
+        conn.sendall(json.dumps(response))
+    conn.close()
+
+def route(data):
+    #check data 'method' and 'type' and send to responsible method
+    method = response["method"]
+    method_type = response["type"]
+
+    if method == "PING" and method_type == "RESPONSE":
+        return ping_reply(data)
+    elif method == 'DOWNLOAD_FILE' and method_type == "RESPONSE":
+        return download_file_response(data)
 
 
 #
