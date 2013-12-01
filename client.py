@@ -91,8 +91,6 @@ def send(host, port, data):
     s.connect((host, port))
     s.sendall(json.dumps(data))
 
-    print 'antes'
-
     #gets response
     response = s.recv(1024)
     s.close()
