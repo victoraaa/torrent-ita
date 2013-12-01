@@ -1,7 +1,7 @@
 import sys
-import thread
+# import thread
 
-import client_upload
+from client import listen
 
 
 def main():
@@ -13,11 +13,16 @@ def main():
 
     print 'Tracker: ' + tracker_ip + ':' + str(tracker_port)
 
-    client_upload.TRACKER_HOST = tracker_ip
-    client_upload.TRACKER_PORT = tracker_port
+    # client_upload.TRACKER_HOST = tracker_ip
+    # client_upload.TRACKER_PORT = tracker_port
 
-    thread.start_new_thread(client_upload.run)
+    # thread.start_new_thread(client_upload.run)
 
 
-if __name__ == '__main__':
-    main()
+def run_uploader():
+    while True:
+        listen(50011)
+
+
+if __name__ == "__main__":
+    run_uploader()
