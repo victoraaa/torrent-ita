@@ -64,7 +64,6 @@ def route(data):
         return "Invalid Request"
 
 
-#
 def send(host, port, data):
 
     #initializing socket and making it connect

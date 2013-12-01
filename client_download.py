@@ -2,6 +2,15 @@
 
 __author__ = 'victoraaa'
 
+from client import send
+
+TRACKER = ''
+TRACKER_PORT = 500001
+
+
+def main_test():
+    download_file_part('192.168.0.26', 50011, 'test_file.txt', 0)
+
 
 def ping_request(host, port):
     data = {
@@ -27,7 +36,20 @@ def list_files():
         pass
 
 
+def get_tracker(filename):
+    data = {
+        "method": "LIST_FILES",
+        "type": "REQUEST",
+        "file": filename
+    }
+    try:
+        response = send(TRACKER, TRACKER_PORT, data)
+    except:
+        return "Tracker is unreachable"
+
+
 def download_file(host, port, filename):
+    #download all parts
     threads = []    
     for i in range(N_PARTS):
         t = threading.Thread(target=download_file_part, args = (host, port, filename, part))
@@ -36,7 +58,14 @@ def download_file(host, port, filename):
     for thread in threads:
         thread.join()
         #send message to tracker
+
     #put files together
+    parts = []
+    for i in range(N_PARTS):
+        with open('{}.part{}'.format(filename, i), 'rb') as f:
+            parts.append(f.read())
+    with open(filename, 'wb') as f:
+        f.write("".join(parts))
     #check if original
     
     return
@@ -53,3 +82,4 @@ def download_file_part(host, port, filename, part):
     with open('filename.part1', 'wb') as f:
         f.write(response)
 
+main_test()
