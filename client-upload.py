@@ -46,20 +46,24 @@ def download_file_response(request_data):
 
 
 def ping_response():
+    print 'ping response'
     response_data = {'method': 'PING',
                      'type': 'RESPONSE'}
 
-    send(TRACKER_HOST, TRACKER_PORT, response_data)
+    return response_data
 
 
 def method_router(data):
     method = data['method']
 
+    print 'method router'
+    print data
+
     if method == 'PING':
-        ping_response()
+        return ping_response()
 
 
 if __name__ == "__main__":
 
     while True:
-        listen(50010, method_router)
+        listen(50011, method_router)

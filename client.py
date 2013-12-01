@@ -37,7 +37,7 @@ def ping_request(host, port):
 
 #Receives host and port to which will connect
 def listen(port, callback):
-    
+
     #initiating socket and making it listen
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -45,13 +45,15 @@ def listen(port, callback):
     s.listen(5)
     while True:
         conn, addr = s.accept()
-        
+
         #transfering data
         data = conn.recv(1024)
-        response = callback(addr[0], json.loads(data))
+        response = callback(json.loads(data))
         if response:
-            conn.sendall(response)
-    
+            print 'response no listen'
+            print response
+            conn.sendall(json.dumps(response))
+
         conn.close()
     s.close()
 
@@ -63,7 +65,7 @@ def send(host, port, data):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.connect((host, port))
-    s.sendall(data)
+    s.sendall(json.dumps(data))
 
     print 'antes'
 
