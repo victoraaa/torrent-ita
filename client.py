@@ -1,7 +1,7 @@
 # Echo server program
 import socket
 
-HOST = ''                 # Symbolic name meaning all available interfaces
+HOST = '192.168.0.27'                 # Symbolic name meaning all available interfaces
 MAIN_PORT = 50006              # Arbitrary non-privileged port
 
 
@@ -15,10 +15,10 @@ def main():
     #listen(MAIN_PORT, stub_response)
 
     #client should do:
-    #while True:
-    #    data = raw_input()
-    #    print send(HOST, MAIN_PORT, data)
-    pass
+    while True:
+       data = raw_input()
+       print send(HOST, MAIN_PORT, data)
+    # pass
 
 #Receives host and port to which will connect
 def listen(port, callback):
@@ -51,10 +51,13 @@ def send(host, port, data):
     s.connect((host, port))
     s.sendall(data)
 
+    print 'antes'
+
     #gets response
     response = s.recv(1024)
     s.close()
 
+    print 'blah depois'
     return response
 
 
