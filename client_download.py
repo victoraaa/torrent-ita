@@ -2,14 +2,17 @@
 
 __author__ = 'victoraaa'
 
-from client import send
+import threading, os
+
+from client import send, N_PARTS
+
 
 TRACKER = ''
 TRACKER_PORT = 500001
 
 
 def main_test():
-    download_file_part('192.168.0.26', 50011, 'test_file.txt', 0)
+    download_file('192.168.0.26', 50011, 'ring.jpg')
 
 
 def ping_request(host, port):
@@ -52,7 +55,7 @@ def download_file(host, port, filename):
     #download all parts
     threads = []    
     for i in range(N_PARTS):
-        t = threading.Thread(target=download_file_part, args = (host, port, filename, part))
+        t = threading.Thread(target=download_file_part, args = (host, port, filename, i))
         t.start()
         threads.append(t)
     for thread in threads:
@@ -64,6 +67,7 @@ def download_file(host, port, filename):
     for i in range(N_PARTS):
         with open('{}.part{}'.format(filename, i), 'rb') as f:
             parts.append(f.read())
+        os.remove('{}.part{}'.format(filename, i))
     with open(filename, 'wb') as f:
         f.write("".join(parts))
     #check if original
@@ -74,12 +78,16 @@ def download_file(host, port, filename):
 def download_file_part(host, port, filename, part):
     request = {
         "method": "DOWNLOAD_FILE",
-        "type": "request",
+        "type": "REQUEST",
         "file": filename,
         "part_number": part
     }
-    response = send(host, port, request)
-    with open('filename.part1', 'wb') as f:
-        f.write(response)
+    try:
+        response = send(host, port, request)
+    except:
+        return "host is unreachable"
+    print response
+    with open('{}.part{}'.format(filename, part), 'wb') as f:
+        f.write(response["file"])
 
 main_test()

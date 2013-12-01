@@ -39,7 +39,7 @@ def listen(port):
         conn, addr = s.accept()
 
         #transfering data
-        data = conn.recv(1024)
+        data = conn.recv(1024).decode('utf-8')
 
         t = threading.Thread(target=_process_connection, args = (data, conn))
         t.start()
@@ -48,7 +48,7 @@ def listen(port):
 def _process_connection(data, conn):
     #vê data e chama o método responsável
 
-    response = route(json.loads(data))
+    response = route(json.loads(data).decode('utf-8'))
     if response:
         conn.sendall(json.dumps(response))
     conn.close()
@@ -58,7 +58,7 @@ def route(data):
     method = data["method"]
     method_type = data["type"]
 
-    if method == 'DOWNLOAD_FILE' and method_type == "RESPONSE":
+    if method == 'DOWNLOAD_FILE' and method_type == "REQUEST":
         return download_file_response(data)
     else:
         return "Invalid Request"
@@ -70,9 +70,9 @@ def send(host, port, data):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.connect((host, port))
-    s.sendall(json.dumps(data))
+    s.sendall(json.dumps(data).encode('utf-8'))
     #gets response
-    response = s.recv(1024)
+    response = s.recv(1024).decode('utf-8')
     s.close()
 
     return json.loads(response)
