@@ -39,23 +39,30 @@ def listen(port):
         conn, addr = s.accept()
 
         #transfering data
-        data = conn.recv(1024)
+        data = conn.recv(1024).decode('utf-8')
 
         t = threading.Thread(target=_process_connection, args = (data, conn))
         t.start()
     s.close()
 
+
 def _process_connection(data, conn):
     #vê data e chama o método responsável
 
     response = route(json.loads(data))
-    
+
+    response = json.dumps(response)
     print '\nResposta a ser enviada:'
-    print response
+    if len(response) < 100:
+        print response
+    else:
+        print response[0:100]
+        print '....'
 
     if response:
-        conn.sendall(json.dumps(response))
+        conn.sendall(response)
     conn.close()
+
 
 def route(data):
     #check data 'method' and 'type' and send to responsible method
@@ -73,7 +80,6 @@ def route(data):
         return "Invalid Request"
 
 
-#
 def send(host, port, data):
 
     #initializing socket and making it connect

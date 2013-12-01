@@ -1,5 +1,7 @@
 # coding: utf-8
 
+import base64
+
 __author__ = 'taciogt'
 
 
@@ -26,7 +28,7 @@ def register_as_owner_request(file_name, part_completed):
 def _read_file_part(file_name, part_number):
 
         file_name = 'files/' + file_name
-        f = open(file_name, 'r')
+        f = open(file_name, 'rb')
         f.seek(0, 2)
         size = f.tell()
         part_size = size / 3
@@ -38,6 +40,8 @@ def _read_file_part(file_name, part_number):
             file_piece = f.read(part_size)
         else:
             file_piece = f.read(size - begin)
+
+        file_piece = base64.b64encode(file_piece)
 
         return file_piece
 
