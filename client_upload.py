@@ -2,7 +2,6 @@
 
 __author__ = 'taciogt'
 
-from client import listen, send
 
 TRACKER_IP = None
 TRACKER_PORT = None
@@ -21,7 +20,7 @@ def register_as_owner_request(file_name, part_completed):
                     'port_number': UPLOADER_PORT_NUMBER
                     }
 
-    send(TRACKER_IP, TRACKER_PORT, request_data)
+    return request_data
 
 
 def _read_file_part(file_name, part_number):
@@ -53,7 +52,7 @@ def download_file_response(request_data):
                      'type': 'RESPONSE',
                      'file': file_piece
                      }
-    
+
     return response_data
 
 
@@ -75,15 +74,3 @@ def method_router(data):
         ping_response()
     if method == 'DOWNLOAD_FILE':
         download_file_response()
-
-
-def run_uploader(tracker_ip, tracker_port):
-    TRACKER_IP = tracker_ip
-    TRACKER_PORT = tracker_port
-
-    while True:
-        listen(UPLOADER_PORT_NUMBER, method_router)
-
-
-if __name__ == "__main__":
-    run_uploader('192.168.0.27', 50006)
