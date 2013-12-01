@@ -3,15 +3,12 @@
 __author__ = 'taciogt'
 
 from client import listen, send
-# from tracker import get_part_bytes  # pra saber o range de bytes correspondente a uma determinada parte
 
-
-TRACKER_HOST = '192.168.0.27'
-TRACKER_PORT = 50006
-
+TRACKER_IP = None
+TRACKER_PORT = None
 
 MY_IP = None
-MY_PORT_NUMBER = None
+UPLOADER_PORT_NUMBER = 50011
 
 
 def register_as_owner_request(file_name, part_completed):
@@ -21,22 +18,34 @@ def register_as_owner_request(file_name, part_completed):
                     'file': file_name,
                     'part_number': part_completed,
                     'IP': MY_IP,
-                    'port_number': MY_PORT_NUMBER
+                    'port_number': UPLOADER_PORT_NUMBER
                     }
 
-    send(TRACKER_HOST, TRACKER_PORT, request_data)
+    send(TRACKER_IP, TRACKER_PORT, request_data)
+
+
+def _read_file_part(file_name, part_number):
+        f = open(file_name, 'r')
+        f.seek(0, 2)
+        size = f.tell()
+        part_size = size / 3
+
+        begin = part_number * part_size
+
+        f.seek(begin)
+        if part_number != 2:
+            file_piece = f.read(part_size)
+        else:
+            file_piece = f.read(size - begin)
+
+        return file_piece
 
 
 def download_file_response(request_data):
     file_name = request_data['file']
     part_number = request_data['part_number']
 
-    f = open(file_name, 'r')
-
-    begin, end = get_part_bytes(file_name, part_number)
-    part_size = end - begin
-    f.seek(begin)
-    file_piece = f.read(part_size)
+    file_piece = _read_file_part(file_name, part_number)
 
     response_data = {'method': 'DOWNLOAD_FILE',
                      'type': 'RESPONSE',
@@ -60,10 +69,18 @@ def method_router(data):
     print data
 
     if method == 'PING':
-        return ping_response()
+        ping_response()
+    if method == 'DOWNLOAD_FILE':
+        download_file_response()
+
+
+def run_uploader(tracker_ip, tracker_port):
+    TRACKER_IP = tracker_ip
+    TRACKER_PORT = tracker_port
+
+    while True:
+        listen(UPLOADER_PORT_NUMBER, method_router)
 
 
 if __name__ == "__main__":
-
-    while True:
-        listen(50011, method_router)
+    run_uploader('192.168.0.27', 50006)
