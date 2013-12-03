@@ -8,7 +8,7 @@ import logging
 
 from client import send, N_PARTS
 
-logging.level(logging.INFO)
+logging.basicConfig(filename='client_download.log', level=logging.INFO)
 
 TRACKER = '127.0.0.1'
 TRACKER_PORT = 34000
@@ -95,4 +95,4 @@ def download_file_part(host, port, filename, part):
         f.write(response["file"])
 
 if __name__ == '__main__':
-    print 
+    list_files()

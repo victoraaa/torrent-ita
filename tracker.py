@@ -3,6 +3,8 @@ import time
 import json
 import thread
 
+from threading import Thread
+
 
 class File(object):
     def __init__(self, name, md5):
@@ -43,7 +45,9 @@ class Tracker(object):
         }
         self.files = {}
 
-        thread.start_new_thread(self.check_providers)
+        # thread.start_new_thread(self.check_providers)
+        t = Thread(target=self.check_providers)
+        t.start()
 
     def loop(self):
         self.socket.listen(5)
