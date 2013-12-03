@@ -174,6 +174,8 @@ def _download_file_part(host, port, filename, part):
     with open('{}.part{}'.format(filename, part), 'wb') as f:
         f.write(response["file"])
 
+    register_as_owner(filename, part_completed=part)
+
 
 if __name__ == '__main__':
     list_files()
