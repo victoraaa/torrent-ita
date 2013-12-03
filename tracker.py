@@ -9,11 +9,13 @@ from threading import Thread
 class File(object):
     def __init__(self, name, md5):
         self.name = name
-        self.providers = {1: [], 2: [], 3: []}
+        self.providers = {}
         self.md5 = md5
 
     def register_provider(self, pieces, addr):
         for piece in pieces:
+            if piece not in self.providers:
+                self.providers[piece] = []
             if addr not in self.providers[piece]:
                 self.providers[piece].append(addr)
 
@@ -29,7 +31,7 @@ class File(object):
         return response
 
     def get_json(self):
-        return {'file': self.name, 'pieces_list': self.get_providers, 'md5': self.md5}
+        return {'file': self.name, 'pieces_list': self.get_providers(), 'MD5': self.md5}
 
 
 class Tracker(object):
@@ -43,7 +45,9 @@ class Tracker(object):
             'LIST_FILES': self.list_files,
             'GET_TRACKER': self.get_tracker,
         }
-        self.files = {}
+        # f = File('test_file.txt', 'xSt8wBwHDBUamO5yte3bYA==')
+        # f.register_provider([0, 1, 2], ('192.168.0.255', '50000'))
+        self.files = dict()
 
         # thread.start_new_thread(self.check_providers)
         t = Thread(target=self.check_providers)
@@ -51,17 +55,19 @@ class Tracker(object):
 
     def loop(self):
         self.socket.listen(5)
+        print '* Listening'
         while True:
             try:
                 conn, addr = self.socket.accept()
                 print '* New connection: {}'.format(addr[0])
                 thread.start_new_thread(self.client, (conn, addr))
             except KeyboardInterrupt:
+                print '* Exiting'
+                self.socket.close()
                 break
-        self.socket.close()
 
     def check_providers(self):
-        while True:
+        while False:
             providers = []
             for f in self.files:
                 providers.extend(f.providers.values())
@@ -92,6 +98,7 @@ class Tracker(object):
             func = self.commands[data['method']]
             response = func(data) or dict()
             response.update({'method': data['method'], 'type': 'RESPONSE'})
+            print response
             print '-> {}: {}'.format(addr[0], json.dumps(response))
             conn.sendall(json.dumps(response))
             conn.close()
@@ -99,16 +106,16 @@ class Tracker(object):
     def register(self, data):
         name = data['file']
         if name not in self.files:
-            self.files[name] = File(name, data['md5'])
-        self.files[name].register_provider(data['part_number'], (data['ip'], data['port_number']))
+            self.files[name] = File(name, data['MD5'])
+        self.files[name].register_provider(data['part_number'], (data['IP'], data['port_number']))
 
     def list_files(self, data):
-        return self.files.keys()
+        return dict(files=self.files.keys())
 
     def get_tracker(self, data):
-        if not data['file'] in self.file.keys():
+        if not data['file'] in self.files.keys():
             return {'error': 'FILE_NOT_AVAILABLE'}
-        return self.file[data['file']].get_json()
+        return self.files[data['file']].get_json()
 
 if __name__ == '__main__':
     tracker = Tracker()
