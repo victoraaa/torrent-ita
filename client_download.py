@@ -123,7 +123,7 @@ def _download_file(hosts, filename, MD5):
             parts.append(f.read())
         os.remove('{}.part{}'.format(filename, i))
 
-    with open(filename, 'wb') as f:
+    with open("./files/{}".format(filename), 'wb') as f:
         f.write(base64.b64decode("".join(parts)))
 
     #check if original
@@ -173,6 +173,8 @@ def _download_file_part(host, port, filename, part):
 
     with open('{}.part{}'.format(filename, part), 'wb') as f:
         f.write(response["file"])
+
+    register_as_owner(filename, part_completed=part)
 
 
 if __name__ == '__main__':

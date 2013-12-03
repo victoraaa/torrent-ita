@@ -13,15 +13,21 @@ print "\n\n"
 for f in os.listdir('./files'):
 	register_as_owner(f)
 
-
 while True:
 	command = raw_input()
 	if command == "LIST_FILES":
-		pass
-	elif command.split(' ')[0] == "DOWNLOAD":
-		pass
+		list_files()
 	else:
-		print ""
-		print "Comando não aceito."
-		print "Comandos disponíveis: LIST_FILES e DOWNLOAD <FILENAME>"
-		print "\n\n"
+		try:
+	 		if command.split(' ')[0] == "DOWNLOAD":
+				download_file_view(command.split(' ')[1])
+			else:
+				print ""
+				print "Comando não aceito."
+				print "Comandos disponíveis: LIST_FILES e DOWNLOAD <FILENAME>"
+				print "\n\n"
+		except:
+			print ""
+			print "Comando não aceito."
+			print "Comandos disponíveis: LIST_FILES e DOWNLOAD <FILENAME>"
+			print "\n\n"
