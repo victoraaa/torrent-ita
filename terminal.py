@@ -2,7 +2,7 @@
 
 import os
 
-from client_download import download_file_view, list_files_view, register_as_owner
+from client_download import download_file_view, list_files, register_as_owner
 
 print "\n\n"
 print "--- Torrent-ITA ---"

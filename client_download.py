@@ -17,7 +17,7 @@ from client import send, N_PARTS
 TRACKER = '192.168.0.10'
 TRACKER_PORT = 34000
 
-MY_IP = '192.168.0.26'
+MY_IP = '192.168.0.27'
 UPLOADER_PORT_NUMBER = 50000
 
 class InvalidFile(Exception):
@@ -127,7 +127,7 @@ def _download_file(hosts, filename, MD5):
         f.write(base64.b64decode("".join(parts)))
 
     #check if original
-    with open(filename, 'rb') as f:
+    with open("./files/{}".format(filename), 'rb') as f:
         hashed_file = md5.new(f.read())
         if hashed_file.digest() != MD5:
             raise InvalidFile("the hash of the download file is not valid")
@@ -153,7 +153,6 @@ def register_as_owner(file_name, part_completed=None):
         data['part_number'] = [part_completed]
 
     response = send(TRACKER, TRACKER_PORT, data)
-    print response
 
     logging.info('Response: {}'.format(response))
 
@@ -166,6 +165,8 @@ def _download_file_part(host, port, filename, part):
         "part_number": part
     }
     try:
+        print "Downloading file {} from host {}, at port {}. Request is: {}".format(
+            filename, host, port, request)
         response = send(host, port, request)
     except Exception as e:
         print e

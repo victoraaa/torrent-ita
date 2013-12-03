@@ -67,6 +67,7 @@ def route(data):
     print '\nChamada recebida:'
     print 'METHOD: ' + method
     print 'TYPE: ' + method_type
+    print 'FULL REQUEST:' + data
 
     if method == 'DOWNLOAD_FILE' and method_type == "REQUEST":
         return download_file_response(data)
@@ -80,7 +81,6 @@ def send(host, port, data):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.connect((host, port))
-    print json.dumps(data)
     s.sendall(json.dumps(data))
 
     import time
