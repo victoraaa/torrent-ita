@@ -12,19 +12,6 @@ MY_IP = None
 UPLOADER_PORT_NUMBER = 50011
 
 
-def register_as_owner_request(file_name, part_completed):
-
-    request_data = {'method': 'REGISTER_AS_OWNER',
-                    'type': 'REQUEST',
-                    'file': file_name,
-                    'part_number': part_completed,
-                    'IP': MY_IP,
-                    'port_number': UPLOADER_PORT_NUMBER
-                    }
-
-    return request_data
-
-
 def _read_file_part(file_name, part_number):
 
         file_name = 'files/' + file_name

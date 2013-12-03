@@ -45,11 +45,8 @@ class Tracker(object):
             'LIST_FILES': self.list_files,
             'GET_TRACKER': self.get_tracker,
         }
-        # f = File('test_file.txt', 'xSt8wBwHDBUamO5yte3bYA==')
-        # f.register_provider([0, 1, 2], ('192.168.0.255', '50000'))
         self.files = dict()
 
-        # thread.start_new_thread(self.check_providers)
         t = Thread(target=self.check_providers)
         t.start()
 
@@ -64,7 +61,6 @@ class Tracker(object):
             except KeyboardInterrupt:
                 print '* Exiting'
                 self.socket.close()
-                break
 
     def check_providers(self):
         while False:

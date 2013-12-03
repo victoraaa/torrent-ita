@@ -5,14 +5,19 @@ __author__ = 'victoraaa'
 import threading
 import os
 import logging
+import md5
+import base64
 
 from client import send, N_PARTS
 
-logging.basicConfig(filename='client_download.log', level=logging.INFO)
+# logging.basicConfig(filename='client_download.log', level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 
-TRACKER = '127.0.0.1'
+TRACKER = '192.168.0.10'
 TRACKER_PORT = 34000
 
+MY_IP = '192.168.0.255'
+UPLOADER_PORT_NUMBER = 50000
 
 def main_test():
     download_file('192.168.0.26', 50011, 'ring.jpg')
@@ -38,7 +43,7 @@ def list_files():
     }
     try:
         response = send(TRACKER, TRACKER_PORT, data)
-        logging.info('Response received: ' + str(response))
+        print response
     except:
         msg = 'Tracker {}:{} is unreachable'.format(TRACKER, TRACKER_PORT)
         logging.error(msg)
@@ -79,6 +84,31 @@ def download_file(host, port, filename):
     return
 
 
+def register_as_owner(file_name, part_completed=None):
+    data = {'method': 'REGISTER_AS_OWNER',
+            'type': 'REQUEST',
+            'file': file_name,
+            'part_number': part_completed,
+            'IP': MY_IP,
+            'port_number': UPLOADER_PORT_NUMBER
+            }
+
+    # registering the file when starting the client
+    if part_completed is None:
+        f = open(file_name)
+        md5_code = md5.new(f.read()).digest()
+        data['MD5'] = base64.b64encode(md5_code)
+        data['part_number'] = [0, 1, 2]
+    # registering the file after downloading one part
+    else:
+        data['part_number'] = [part_completed]
+
+    response = send(TRACKER, TRACKER_PORT, data)
+    print response
+    
+    logging.info('Response: {}'.format(response))
+
+
 def download_file_part(host, port, filename, part):
     request = {
         "method": "DOWNLOAD_FILE",
@@ -96,3 +126,6 @@ def download_file_part(host, port, filename, part):
 
 if __name__ == '__main__':
     list_files()
+
+    # file_name = 'test_file.txt'
+    # register_as_owner(file_name)
