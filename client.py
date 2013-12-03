@@ -8,7 +8,7 @@ from client_upload import download_file_response
 
 #HOST = '192.168.0.27'                 # Symbolic name meaning all available interfaces
 HOST = ''
-MAIN_PORT = 50006              # Arbitrary non-privileged port
+MAIN_PORT = 50000         # Arbitrary non-privileged port
 
 TRACKER = ''
 TRACKER_PORT = 500001
@@ -103,4 +103,5 @@ def send(host, port, data):
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    listen(MAIN_PORT)

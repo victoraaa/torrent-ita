@@ -16,7 +16,7 @@ from client import send, N_PARTS
 TRACKER = '192.168.0.10'
 TRACKER_PORT = 34000
 
-MY_IP = '192.168.0.255'
+MY_IP = '192.168.0.26'
 UPLOADER_PORT_NUMBER = 50000
 
 def main_test():
@@ -95,7 +95,7 @@ def register_as_owner(file_name, part_completed=None):
 
     # registering the file when starting the client
     if part_completed is None:
-        f = open(file_name)
+        f = open('files/' + file_name)
         md5_code = md5.new(f.read()).digest()
         data['MD5'] = base64.b64encode(md5_code)
         data['part_number'] = [0, 1, 2]
@@ -105,7 +105,7 @@ def register_as_owner(file_name, part_completed=None):
 
     response = send(TRACKER, TRACKER_PORT, data)
     print response
-    
+
     logging.info('Response: {}'.format(response))
 
 
@@ -127,5 +127,7 @@ def download_file_part(host, port, filename, part):
 if __name__ == '__main__':
     list_files()
 
-    # file_name = 'test_file.txt'
-    # register_as_owner(file_name)
+    register_as_owner('test_file.txt')
+    register_as_owner('ring.jpg')
+
+    list_files()
