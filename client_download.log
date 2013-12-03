@@ -1,1 +1,5 @@
 ERROR:root:Tracker 127.0.0.1:34000 is unreachable
+INFO:root:Response received: {u'type': u'RESPONSE', u'method': u'LIST_FILES'}
+INFO:root:Response received: {u'type': u'RESPONSE', u'method': u'LIST_FILES'}
+INFO:root:Response received: 2
+INFO:root:Response received: {u'type': u'RESPONSE', u'method': u'LIST_FILES'}

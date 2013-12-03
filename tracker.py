@@ -56,7 +56,8 @@ class Tracker(object):
                 conn, addr = self.socket.accept()
                 print '* New connection: {}'.format(addr[0])
                 thread.start_new_thread(self.client, (conn, addr))
-            except KeyboardInterrupt:
+            except KeyboardInterrupt as e:
+                print e
                 break
         self.socket.close()
 

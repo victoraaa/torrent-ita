@@ -93,7 +93,13 @@ def send(host, port, data):
     response = s.recv(1024)
     s.close()
 
-    return json.loads(response)
+    try:
+        response = json.loads(response)
+    except Exception as e:
+        print e
+        print response
+
+    return response
 
 
 if __name__ == '__main__':
