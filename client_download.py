@@ -19,6 +19,10 @@ TRACKER_PORT = 34000
 MY_IP = '192.168.0.26'
 UPLOADER_PORT_NUMBER = 50000
 
+class InvalidFile(Exception):
+    pass
+
+
 def main_test():
     download_file('192.168.0.26', 50011, 'ring.jpg')
 
@@ -48,9 +52,43 @@ def list_files():
         msg = 'Tracker {}:{} is unreachable'.format(TRACKER, TRACKER_PORT)
         logging.error(msg)
 
-def get_tracker(filename):
+def download_file_view(filename):
+    def get_hosts_combination(hosts_lists):
+        host_combinations = itertools.product(hosts)
+        n = N_PARTS
+        while n > 0:
+            for combination in host_combinations:
+                if len(set(combination)) == N_PARTS:
+                    return combination
+            n -= 1
+
+        raise "something strange happening"
+
+    try:
+        tracker = get_tracker(filename)
+    except ValueError:
+        print 'The chosen file is not available. Please check your spelling.'
+
+    hosts_lists = []
+    for i in range(N_PARTS):
+        hosts_lists.append([host["IP"] for host in tracker["pieces"][i]])
+    hosts_by_part = get_hosts_combination(hosts_lists)
+
+    hosts = []
+    for i in range(N_PARTS):
+        for host in tracker["pieces"][i]:
+            if host["IP"] == hosts_by_part[i]:
+                hosts.append(host)
+
+    try:
+        _download_file(hosts, filename)
+    except InvalidFile:
+        print "The download file is invalid! It may be corrupted or attacked."
+
+
+def _get_tracker(filename):
     data = {
-        "method": "LIST_FILES",
+        "method": "GET_TRACKER",
         "type": "REQUEST",
         "file": filename
     }
@@ -59,12 +97,21 @@ def get_tracker(filename):
     except:
         return "Tracker is unreachable"
 
+    if "error" in response:
+        raise ValueError("File not available at tracker")
 
-def download_file(host, port, filename):
+    return {
+        "filename": filename,
+        "MD5": response["MD5"],
+        "pieces": response["pieces_list"]
+    }
+
+
+def _download_file(hosts, filename, MD5):
     #download all parts
     threads = []    
     for i in range(N_PARTS):
-        t = threading.Thread(target=download_file_part, args = (host, port, filename, i))
+        t = threading.Thread(target=download_file_part, args = (hosts[i]["IP"], hosts[i]["port_number"], filename, i))
         t.start()
         threads.append(t)
     for thread in threads:
@@ -77,11 +124,14 @@ def download_file(host, port, filename):
         with open('{}.part{}'.format(filename, i), 'rb') as f:
             parts.append(f.read())
         os.remove('{}.part{}'.format(filename, i))
+
     with open(filename, 'wb') as f:
-        f.write("".join(parts))
+        f.write(base64.b64decode("".join(parts)))
     #check if original
-    
-    return
+    with open(filename, 'rb') as f:
+        hashed_file = md5.new(f.read())
+        if hashed_file.digest() != MD5:
+            raise InvalidFile("the hash of the download file is not valid")
 
 
 def register_as_owner(file_name, part_completed=None):
@@ -118,11 +168,13 @@ def download_file_part(host, port, filename, part):
     }
     try:
         response = send(host, port, request)
-    except:
+    except Exception as e:
+        print e
         return "host is unreachable"
-    print response
+
     with open('{}.part{}'.format(filename, part), 'wb') as f:
         f.write(response["file"])
+
 
 if __name__ == '__main__':
     list_files()

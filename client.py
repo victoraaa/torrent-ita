@@ -50,19 +50,11 @@ def _process_connection(data, conn):
     #vê data e chama o método responsável
 
     response = route(json.loads(data))
-
-    response = json.dumps(response)
-    print '\nResposta a ser enviada:'
-    if len(response) < 100:
-        print response
-    else:
-        print response[0:100] + '....'
-
     if response:
-        # import time
-        # time.sleep(0.1)
-        conn.sendall(response)
-        # time.sleep(0.1)
+        conn.sendall(json.dumps(response))
+        import time
+        time.sleep(0.1)
+
     conn.close()
 
 
@@ -89,17 +81,22 @@ def send(host, port, data):
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.connect((host, port))
     s.sendall(json.dumps(data))
+
+    import time
+    time.sleep(0.01)
+
     #gets response
-    response = s.recv(1024)
+    response = ""
+    while True:
+        _buffer = s.recv(1024**2)
+        if _buffer:
+            response += _buffer
+        else:
+            break
+    
+    time.sleep(0.1)
     s.close()
-
-    try:
-        response = json.loads(response)
-    except Exception as e:
-        print e
-        print response
-
-    return response
+    return json.loads(response)
 
 
 if __name__ == '__main__':
