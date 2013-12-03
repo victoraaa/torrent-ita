@@ -2,13 +2,16 @@
 
 __author__ = 'victoraaa'
 
-import threading, os
+import threading
+import os
+import logging
 
 from client import send, N_PARTS
 
+logging.level(logging.INFO)
 
-TRACKER = ''
-TRACKER_PORT = 500001
+TRACKER = '127.0.0.1'
+TRACKER_PORT = 34000
 
 
 def main_test():
@@ -34,10 +37,11 @@ def list_files():
         "type": "REQUEST"
     }
     try:
-        pass
+        response = send(TRACKER, TRACKER_PORT, data)
+        logging.info('Response received: ' + str(response))
     except:
-        pass
-
+        msg = 'Tracker {}:{} is unreachable'.format(TRACKER, TRACKER_PORT)
+        logging.error(msg)
 
 def get_tracker(filename):
     data = {
@@ -90,4 +94,5 @@ def download_file_part(host, port, filename, part):
     with open('{}.part{}'.format(filename, part), 'wb') as f:
         f.write(response["file"])
 
-main_test()
+if __name__ == '__main__':
+    print 
