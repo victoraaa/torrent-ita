@@ -14,10 +14,10 @@ from client import send, N_PARTS
 # logging.basicConfig(filename='client_download.log', level=logging.INFO)
 # logging.basicConfig(level=logging.INFO)
 
-TRACKER = '192.168.0.10'
+TRACKER = '127.0.0.1'
 TRACKER_PORT = 34000
 
-MY_IP = '192.168.0.27'
+MY_IP = '127.0.0.1'
 UPLOADER_PORT_NUMBER = 50000
 
 
@@ -77,7 +77,6 @@ def download_file_view(filename):
     except ValueError:
         print 'The chosen file is not available. Please check your spelling.'
 
-    
     #for each part of the file, concatenates the hosts that have it from the .tracker info
     hosts_lists = []
     for i in range(N_PARTS):
@@ -127,7 +126,7 @@ def _get_tracker(filename):
 #downloads the varios parts of a file, puts them together and check if it is the original file
 def _download_file(hosts, filename, MD5):
     #download all parts, making a new thread for each part
-    threads = []    
+    threads = []
     for i in range(N_PARTS):
         #creates a new thread that runs the _download_file_part method
         t = threading.Thread(target=_download_file_part, args = (hosts[i]["IP"], hosts[i]["port_number"], filename, i))
@@ -152,6 +151,8 @@ def _download_file(hosts, filename, MD5):
         hashed_file = md5.new(f.read())
         if hashed_file.digest() != MD5:
             raise InvalidFile("the hash of the download file is not valid")
+
+    register_as_owner(filename)
 
 
 def register_as_owner(file_name, part_completed=None):

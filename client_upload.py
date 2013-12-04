@@ -9,7 +9,6 @@ TRACKER_IP = None
 TRACKER_PORT = None
 
 MY_IP = None
-UPLOADER_PORT_NUMBER = 50011
 
 
 def _read_file_part(file_name, part_number):
